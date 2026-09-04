@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from math import sqrt
 from pathlib import Path
 
-from openai import AsyncOpenAI
+from langchain_openai import OpenAIEmbeddings
 
 
 @dataclass(frozen=True)
@@ -35,24 +35,21 @@ def cosine_similarity(left: list[float], right: list[float]) -> float:
 
 
 class PolicyRag:
-    def __init__(self, path: Path, client: AsyncOpenAI, embedding_model: str) -> None:
+    def __init__(self, path: Path, embeddings: OpenAIEmbeddings) -> None:
         self.documents = split_sections(path.read_text(encoding="utf-8"))
-        self.client = client
-        self.embedding_model = embedding_model
+        self.embeddings = embeddings
         self.document_embeddings: list[list[float]] | None = None
 
     async def search(self, query: str, top_k: int) -> list[Document]:
         if self.document_embeddings is None:
-            self.document_embeddings = await self._embed([doc.content for doc in self.documents])
+            self.document_embeddings = await self.embeddings.aembed_documents(
+                [doc.content for doc in self.documents]
+            )
 
-        query_embedding = (await self._embed([query]))[0]
+        query_embedding = await self.embeddings.aembed_query(query)
         ranked = sorted(
             zip(self.documents, self.document_embeddings, strict=True),
             key=lambda item: cosine_similarity(query_embedding, item[1]),
             reverse=True,
         )
         return [document for document, _ in ranked[:top_k]]
-
-    async def _embed(self, texts: list[str]) -> list[list[float]]:
-        response = await self.client.embeddings.create(model=self.embedding_model, input=texts)
-        return [item.embedding for item in response.data]

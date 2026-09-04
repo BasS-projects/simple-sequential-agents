@@ -1,12 +1,14 @@
 [project]
 name = "travel-policy-agents"
 version = "0.1.0"
-description = "Two-agent RAG assistant for international travel policy"
+description = "LangGraph RAG assistant for international travel policy"
 requires-python = ">=3.11"
 dependencies = [
-  "openai>=1.0.0",
-  "openai-agents>=0.14.0",
+  "fastapi>=0.115.0",
+  "langchain-openai>=1.0.0",
+  "langgraph>=1.0.0",
   "python-dotenv>=1.0.0",
+  "uvicorn>=0.30.0",
 ]
 
 [project.optional-dependencies]
