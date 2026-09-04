@@ -13,15 +13,37 @@
 
 ## Setup
 
-1. ใช้ Python 3.11 ขึ้นไป
-2. ติดตั้งแพ็กเกจ: `uv sync --extra dev`
-3. คัดลอกไฟล์: `cp .env.example .env`
-4. กรอก `TRAVEL_POLICY_LLM_API_KEY` และปรับ `TRAVEL_POLICY_LLM_BASE_URL` หากใช้ OpenAI-compatible endpoint
+ใช้ Python 3.11 ขึ้นไป แล้วเลือกติดตั้งได้หนึ่งวิธี
+
+### ติดตั้งด้วย uv
+
+```bash
+uv sync --extra dev
+cp .env.example .env
+```
+
+### ติดตั้งด้วย pip โดยไม่ใช้ uv
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+cp .env.example .env
+```
+
+กรอก `TRAVEL_POLICY_LLM_API_KEY` และปรับ `TRAVEL_POLICY_LLM_BASE_URL` หากใช้ OpenAI-compatible endpoint
 
 ## Run the API
 
 ```bash
 uv run python main.py
+```
+
+หากติดตั้งด้วย pip และเปิด virtual environment แล้ว:
+
+```bash
+python main.py
 ```
 
 ส่งคำถามไปที่ `POST /v1/chat/completions`:
@@ -43,7 +65,7 @@ curl http://127.0.0.1:8000/v1/chat/completions \
 
 วิธีทดสอบ:
 
-1. รัน `uv run python main.py`
+1. รัน `uv run python main.py` หรือ `python main.py` เมื่อเปิด virtual environment แล้ว
 2. เปิด `http://127.0.0.1:8000/docs`
 3. ขยาย `POST /v1/chat/completions` แล้วเลือก **Try it out**
 4. ส่ง `model: cursor-search` พร้อม user message จากตัวอย่างด้านล่าง
@@ -73,6 +95,13 @@ curl http://127.0.0.1:8000/v1/chat/completions \
 ```bash
 uv run pytest
 uv run ruff check .
+```
+
+หากติดตั้งด้วย pip:
+
+```bash
+python -m pytest
+ruff check .
 ```
 
 `knowledge_base.txt` คือแหล่งข้อมูลเดียวของคำตอบ โดยแต่ละหัวข้อต้องขึ้นต้นด้วยรูปแบบ `1. ชื่อหัวข้อ`.
